@@ -7,7 +7,30 @@ import json
 
 BASE_URL = "https://vulnerabilityhistory.org/api"
 GITHUB_API_BASE = "https://api.github.com"
-GITHUB_TOKEN = ""
+GITHUB_TOKEN = os.environ.get('GITHUB_TOKEN', '')
+GITHUB_TOKEN_SOURCE = 'env' if os.environ.get('GITHUB_TOKEN') else None
+
+
+def load_github_token_from_config():
+    """Tenta carregar o token do arquivo `config.json` (somente como fallback)."""
+    try:
+        cfg_path = os.path.join(os.path.dirname(__file__), 'config.json')
+        if os.path.exists(cfg_path):
+            with open(cfg_path, 'r', encoding='utf-8') as f:
+                cfg = json.load(f)
+                # campos comuns possíveis
+                return cfg.get('token_github') or cfg.get('github_token') or cfg.get('GITHUB_TOKEN') or ''
+    except Exception:
+        pass
+    return ''
+
+
+# Se variável de ambiente não definida, tentar carregar do config.json (fallback)
+if not GITHUB_TOKEN:
+    cfg_token = load_github_token_from_config()
+    if cfg_token:
+        GITHUB_TOKEN = cfg_token
+        GITHUB_TOKEN_SOURCE = 'config'
 
 def get_github_headers():
     headers = {
@@ -323,8 +346,14 @@ def run_task_5_with_github_tokens(vulnerabilities, project_to_repo):
 
 if __name__ == "__main__":
     if not GITHUB_TOKEN:
-        print("\n[AVISO] Variável GITHUB_TOKEN não definida!")
-        print("   O script continuará, mas a análise do GitHub pode ser limitada.")
+        print("\n[AVISO] Nenhum token do GitHub foi encontrado (variável de ambiente `GITHUB_TOKEN` ou `config.json`).")
+        print("   O script continuará, mas a análise do GitHub pode estar limitada por rate limits ou falta de acesso a commits privados.")
+        print("   Para habilitar a integração completa, defina a variável de ambiente `GITHUB_TOKEN` com um token pessoal, ou adicione 'token_github' em `config.json` (não recomendado para produção).")
+    else:
+        if GITHUB_TOKEN_SOURCE == 'env':
+            print("\n[INFO] Token do GitHub carregado da variável de ambiente `GITHUB_TOKEN`.")
+        elif GITHUB_TOKEN_SOURCE == 'config':
+            print("\n[AVISO] Token do GitHub carregado a partir de `config.json`. Considere usar variável de ambiente e remover o token do arquivo por segurança.")
     
     all_vulnerabilities, all_tags_map, project_to_repo = get_all_data()
     
