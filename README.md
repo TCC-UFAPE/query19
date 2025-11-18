@@ -1,4 +1,4 @@
-# Query11 - Análise Completa de Vulnerabilidades do struts
+# Query19 - Análise Completa de Vulnerabilidades do struts
 
 ## Descrição
 
@@ -87,7 +87,7 @@ GITHUB_TOKEN = "seu_token_aqui"
 ## Como Usar
 
 ```bash
-python query11.py
+python Query19.py
 ```
 
 ## Fluxo de Execução
@@ -122,9 +122,9 @@ Ao final da execução, o script exibe:
 - Total de arquivos modificados
 - Tamanho total dos arquivos processados
 
-## Diferencial da Query11
+## Diferencial da Query19
 
-A Query11 se destaca por:
+A Query19 se destaca por:
 - ✅ **Integração completa** entre documentação textual e código fonte
 - ✅ **Análise focada** no projeto struts
 - ✅ **Métricas detalhadas** de tamanho e complexidade
